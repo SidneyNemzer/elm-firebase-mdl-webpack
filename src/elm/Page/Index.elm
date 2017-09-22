@@ -20,13 +20,13 @@ type Msg
     | Logout
 
 
-init : Auth -> Maybe User -> Model
-init =
-    Model
+init : Auth -> Maybe User -> ( Model, Cmd Msg )
+init auth maybeUser =
+    ( Model auth maybeUser, Cmd.none )
 
 
-update : Model -> Msg -> ( Model, Cmd Msg )
-update model msg =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     let
         noop =
             ( model, Cmd.none )
