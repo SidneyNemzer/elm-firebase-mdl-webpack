@@ -19,7 +19,6 @@ const pages = [
   }
 ]
 
-// This is the base config, you probably don't need to modify it
 const config = {
   entry: {},
   output: {},
