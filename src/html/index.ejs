@@ -3,6 +3,17 @@
   <head>
     <meta charset="UTF-8">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script src="https://www.gstatic.com/firebasejs/4.4.0/firebase.js"></script>
+    <script>
+      firebase.initializeApp({
+        apiKey: "AIzaSyDXYSZuorBMm6bR4mja_l_CvyqH_H7JzjU",
+        authDomain: "elm-spa-4d03b.firebaseapp.com",
+        databaseURL: "https://elm-spa-4d03b.firebaseio.com",
+        projectId: "elm-spa-4d03b",
+        storageBucket: "elm-spa-4d03b.appspot.com",
+        messagingSenderId: "965313000177"
+      })
+    </script>
   </head>
   <body>
     <div></div>
