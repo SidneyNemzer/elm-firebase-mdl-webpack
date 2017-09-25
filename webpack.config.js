@@ -84,4 +84,4 @@ const generateConfig = (baseConfig, pagesToAdd) => {
   return baseConfig
 }
 
-module.exports = generateConfig(config, pages);
+module.exports = generateConfig(config, pages)

@@ -2,11 +2,15 @@ module Main exposing (main)
 
 import Navigation
 import Html exposing (Html)
+import Task
 import Firebase
 import Firebase.Authentication as Auth
 import Firebase.Authentication.Types exposing (User, Auth)
+import Material
 import Route exposing (Route(..))
+import Views.Page as Page
 import Page.Index as Index
+import Page.Login as Login
 
 
 main : Program Never Model Msg
@@ -27,23 +31,29 @@ type alias FirebaseInstance =
 
 type alias PageModels =
     { index : Maybe Index.Model
+    , login : Maybe Login.Model
     }
 
 
 type alias Model =
     { firebase : FirebaseInstance
+    , user : Maybe User
     , pageModels : PageModels
     , currentRoute : Route
+    , mdl : Material.Model
     }
 
 
 type PageMsg
     = IndexMsg Index.Msg
+    | LoginMsg Login.Msg
 
 
 type Msg
     = SetRoute Route
     | PageMsg PageMsg
+    | Mdl (Material.Msg Msg)
+    | Noop ()
 
 
 mapCmd : (a -> PageMsg) -> Cmd a -> Cmd Msg
@@ -79,6 +89,32 @@ setRoute route model =
                 , Cmd.none
                 )
 
+            Route.Login ->
+                let
+                    ( loginModel, loginCmd ) =
+                        Login.init model.firebase.auth
+                in
+                    ( { model
+                        | pageModels =
+                            { pageModels
+                                | login =
+                                    Just loginModel
+                            }
+                        , currentRoute = Login
+                      }
+                    , mapCmd LoginMsg loginCmd
+                    )
+
+            Route.Logout ->
+                ( { model
+                    | user = Nothing
+                  }
+                , Cmd.batch
+                    [ Route.goTo "#/"
+                    , Auth.signOut model.firebase.auth |> Task.perform Noop
+                    ]
+                )
+
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
@@ -95,9 +131,13 @@ init location =
             { app = app
             , auth = Auth.init app
             }
+        , user = Nothing
         , pageModels =
-            { index = Nothing }
+            { index = Nothing
+            , login = Nothing
+            }
         , currentRoute = Index
+        , mdl = Material.model
         }
             |> setRoute (Route.fromLocation location)
 
@@ -119,10 +159,19 @@ pageUpdate pageTrigger pageUpdateFunc pageMsg maybePageModel =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
+        noop =
+            ( model, Cmd.none )
+
         pageModels =
             model.pageModels
     in
         case msg of
+            Mdl materialMsg ->
+                Material.update Mdl materialMsg model
+
+            Noop _ ->
+                noop
+
             SetRoute route ->
                 setRoute route model
 
@@ -138,6 +187,38 @@ update msg model =
                                     { pageModels
                                         | index = newPageModel
                                     }
+                              }
+                            , cmd
+                            )
+
+                    LoginMsg loginMsg ->
+                        let
+                            ( newPageModel, cmd, maybeUser ) =
+                                Maybe.map
+                                    (\loginModel ->
+                                        let
+                                            ( newLoginModel, newLoginCmd, maybeUser ) =
+                                                Login.update loginMsg loginModel
+                                        in
+                                            ( Just newLoginModel, mapCmd LoginMsg newLoginCmd, maybeUser )
+                                    )
+                                    model.pageModels.login
+                                    |> Maybe.withDefault ( Nothing, Cmd.none, Nothing )
+
+                            user =
+                                case maybeUser of
+                                    Just newUser ->
+                                        Just newUser
+
+                                    Nothing ->
+                                        model.user
+                        in
+                            ( { model
+                                | pageModels =
+                                    { pageModels
+                                        | login = newPageModel
+                                    }
+                                , user = user
                               }
                             , cmd
                             )
@@ -160,12 +241,24 @@ viewPage pageMsg pageView maybePageModel =
 
 view : Model -> Html Msg
 view model =
-    case model.currentRoute of
-        Index ->
-            viewPage IndexMsg Index.view model.pageModels.index
+    let
+        frame =
+            Page.frame Mdl model.mdl model.user
+    in
+        case model.currentRoute of
+            Index ->
+                viewPage IndexMsg Index.view model.pageModels.index
+                    |> frame
 
-        Route.NotFound ->
-            Html.h1 [] [ Html.text "Not found" ]
+            Login ->
+                viewPage LoginMsg Login.view model.pageModels.login
+                    |> frame
+
+            Route.NotFound ->
+                Html.h1 [] [ Html.text "Not found" ]
+
+            Route.Logout ->
+                Html.h1 [] [ Html.text "Logged out" ]
 
 
 mapSub : (a -> PageMsg) -> Sub a -> Sub Msg
