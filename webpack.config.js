@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require ('copy-webpack-plugin')
 
 const pages = [
   {
@@ -23,7 +24,11 @@ const config = {
   entry: {},
   output: {},
 
-  plugins: [],
+  plugins: [
+    new CopyWebpackPlugin([{
+      from: 'public', to: 'build', ignore: 'index.html'
+    }])
+  ],
 
   module: {
     rules: [
@@ -72,14 +77,14 @@ const generateConfig = (baseConfig, pagesToAdd) => {
     filename: '[name].js'
   }
 
-  baseConfig.plugins = pagesToAdd.map(page => (
+  baseConfig.plugins = baseConfig.plugins.concat(pagesToAdd.map(page => (
     new HtmlWebpackPlugin({
       title: page.options.title,
       filename: page.output.html,
       template: 'src/' + page.input.template,
       chunks: [page.output.bundle]
     })
-  ))
+  )))
 
   return baseConfig
 }

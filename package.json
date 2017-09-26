@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.7",
     "elm": "^0.18.0",
     "elm-github-install": "^1.6.0",
