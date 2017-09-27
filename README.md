@@ -8,12 +8,12 @@
 
 This repo includes a few other things to help you get started, beyond just Elm and Firebase:
 
-* **Webpack** -- Module bundler and builder. Takes the code you write and turns it into a single file to include on the frontend
-* **Webpack Dev Server** -- A development server that runs on your computer to give you an auto-refreshing preview of your code
+* **Webpack** -- processes your application and recursively builds a dependency graph that includes every module your application needs, then packages all of those modules into a small number of bundles - often only one - to be loaded by the browser
+* **Webpack Dev Server** -- provides a simple web server for development, and the ability to use live reloading
 * **elm-github-install** -- Allows you to install Elm packages directly from Github. This should be used when the package isn't available on http://package.elm-lang.org/
-* **elm-mdl** -- An elm port of Google's Material Design Lite library
+* **elm-mdl** -- An Elm port of Google's Material Design Lite library
 * **evancz/url-parser** -- Helps to figure out what route goes with a URL
-* **elm-firebase** -- An elm port of the firebase-js-sdk
+* **elm-firebase** -- An Elm port of the firebase-js-sdk
 
 ### File Structure
 
