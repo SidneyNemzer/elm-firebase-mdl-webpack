@@ -1,14 +1,7 @@
 module Page.Index exposing (Model, Msg, init, update, view, subscriptions)
 
 import Html exposing (Html, text, div, span, h1, a)
-import Html.Attributes exposing (href)
-import Html.Events exposing (onClick)
-import Task
-import Firebase.Errors
-import Firebase.Authentication as Auth
-import Firebase.Authentication.User as User
 import Firebase.Authentication.Types exposing (User, Auth)
-import Util
 import Route
 
 
