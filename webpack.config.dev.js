@@ -1,4 +1,4 @@
-/* Webpack Dev Config
+/* Webpack Development Config
 
   This configuration file is used by Webpack (and webpack-dev-server) during
   development of your app. It is focused on build speed and ease of debugging
@@ -7,29 +7,40 @@
   This file is mostly taken from the create-react-app project
   https://github.com/facebookincubator/create-react-app
 */
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-// Webpack uses `publicPath` to determine where the app is being served from.
-// In development, we always serve from the root. This makes config easier.
-const publicPath = '/';
-// `publicUrl` is just like `publicPath`, but we will provide it to our app
-// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
-// Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
-const publicUrl = '';
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
+  devServer: {
+    contentBase: './public',
+    watchContentBase: true,
+    publicPath: './public',
+    // Tell the dev server to return the index.html file, no matter what route was
+    // requested
+    historyApiFallback: true,
+    // Forward any request to "/__" to your firebase project
+    proxy: {
+      '/__': {
+        // Make sure you change this to your project's URL!
+        // TODO This could be inferred from the .firebaserc file
+        target: 'https://elm-spa-4d03b.firebaseapp.com',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
   devtool: 'cheap-module-source-map',
   // These are the "entry points" to our application.
   // This means they will be the "root" imports that are included in JS bundle.
   entry: [
     // Your app's code:
-    'src/index'
+    './src/index'
   ],
   output: {
     // Next line is not used in dev but WebpackDevServer crashes without it:
-    path: 'build',
+    path: path.resolve('./build'),
     // Add /* filename */ comments to generated require()s in the output.
     pathinfo: true,
     // Since this config is used by webpack dev server, this does not produce
@@ -40,38 +51,22 @@ module.exports = {
     // There are also additional JS chunk files if you use code splitting.
     chunkFilename: 'js/[name].chunk.js',
     // This is the URL that app is served from. We use "/" in development.
-    // If you use, for example, me.github.io/myapp, this should be set to '/myapp/'
     publicPath: '/',
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: info =>
-      path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
+      path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')
   },
   resolve: {
-    // This allows you to set a fallback for where Webpack should look for modules.
-    // We placed these paths second because we want `node_modules` to "win"
-    // if there are any conflicts. This matches Node resolution mechanism.
-    // https://github.com/facebookincubator/create-react-app/issues/253
-    modules: ['node_modules', paths.appNodeModules].concat(
-      // It is guaranteed to exist because we tweak it in `env.js`
-      process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
-    ),
     // These are the reasonable defaults supported by the Node ecosystem.
     // We also include JSX as a common component filename extension to support
     // some tools, although we do not recommend using it, see:
     // https://github.com/facebookincubator/create-react-app/issues/290
-    // `web` extension prefixes have been added for better support
-    // for React Native Web.
-    extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-    plugins: [
-      // Copy static files into the build folder
-      new CopyWebpackPlugin([{
-        from: 'public', to: 'build', ignore: 'index.html'
-      }])
-    ],
+    extensions: ['.js', '.json', '.jsx']
   },
   module: {
-    // This makes missing exports an error instead of warning
+    // This makes missing exports an error instead of a warning
     strictExportPresence: true,
+    noParse: /\.elm$/,
     rules: [
       {
         // "oneOf" will traverse all following loaders until one will
@@ -86,26 +81,26 @@ module.exports = {
             loader: require.resolve('url-loader'),
             options: {
               limit: 10000,
-              name: 'media/[name].[hash:8].[ext]',
-            },
+              name: 'media/[name].[hash:8].[ext]'
+            }
           },
           // Process JS with Babel.
           {
             test: /\.(js|jsx)$/,
-            include: 'src',
+            include: path.resolve('./src'),
             loader: require.resolve('babel-loader'),
             options: {
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
-              cacheDirectory: true,
-            },
+              cacheDirectory: true
+            }
           },
           // Compile Elm files
           {
-            test:    /\.elm$/,
+            test: /\.elm$/,
             exclude: [/elm-stuff/, /node_modules/],
-            loader:  'elm-webpack-loader',
+            loader: 'elm-webpack-loader',
             options: {
               warn: true
             }
@@ -123,20 +118,24 @@ module.exports = {
             exclude: [/\.js$/, /\.html$/, /\.json$/],
             loader: require.resolve('file-loader'),
             options: {
-              name: 'media/[name].[hash:8].[ext]',
-            },
-          },
-        ],
-      },
+              name: 'media/[name].[hash:8].[ext]'
+            }
+          }
+        ]
+      }
       // ** STOP ** Are you adding a new loader?
       // Make sure to add the new loader(s) before the "file" loader.
-    ],
+    ]
   },
   plugins: [
+    // Copy static files into the build folder
+    new CopyWebpackPlugin([{
+      from: 'public', to: 'build', ignore: 'index.html'
+    }]),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
-      template: 'public/index.html',
+      template: 'public/index.html'
     }),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin()
@@ -144,6 +143,6 @@ module.exports = {
   // Turn off performance hints during development because we don't do any
   // splitting or minification in interest of speed.
   performance: {
-    hints: false,
-  },
-};
+    hints: false
+  }
+}
