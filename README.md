@@ -4,7 +4,7 @@
 
 ## What's included
 
-**Elm** is a language that compiles to Javascript. It can be used to make websites! The architecture of an Elm app is similar to React + Redux. **Firebase** has several major features: user authentication, a real-time (aka super fast) nosql database, dynamic file storage (Google Cloud Storage), static website hosting, and Functions (Google Cloud Functions) which run can preform various tasks when triggered by a preset event (http request, database change, storage change, etc).
+**Elm** is a functional language that compiles to JavaScript. Elm was designed to make websites! The architecture of an Elm app is similar to React + Redux. **Firebase** has several major features: user authentication, a real-time (aka super fast) nosql database, dynamic file storage (Google Cloud Storage), static website hosting, and Functions (Google Cloud Functions) which run can preform various tasks when triggered by a preset event (http request, database change, storage change, etc).
 
 This repo includes a few other things to help you get started, beyond just Elm and Firebase:
 
